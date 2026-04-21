@@ -42,13 +42,13 @@
   <main class="pt-28 pb-20 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p class="text-sm text-gray-500 mb-10">Last updated: March 17, 2026</p>
+      <p class="text-sm text-gray-500 mb-10">Last updated: April 20, 2026</p>
 
       <div class="space-y-8 text-gray-300 leading-relaxed">
 
         <section>
           <h2 class="text-xl font-semibold text-white mb-3">Overview</h2>
-          <p>SaleCheck is a Chrome extension designed to track product prices and notify you of price drops. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.</p>
+          <p>SaleCheck is a Chrome extension that tracks product prices and shows you when prices drop. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.</p>
         </section>
 
         <section>
@@ -57,21 +57,23 @@
           <p class="mb-3">The extension generates a random, anonymous identifier (UUID) on installation. This UUID is used solely for rate limiting API requests to prevent abuse. It cannot be linked to your identity, browsing history, or any personal information.</p>
           <p><strong class="text-white">Data stored locally in your browser:</strong></p>
           <ul class="list-disc list-inside mt-2 space-y-1 text-gray-400">
-            <li>Product URLs you choose to track</li>
-            <li>Product titles and prices</li>
+            <li>Product URLs and identifiers for items you choose to track</li>
+            <li>Product titles, prices, and historical price data returned by our backend</li>
             <li>Your anonymous UUID</li>
+            <li>App preferences, including your cumulative savings total and selected pig accessory</li>
           </ul>
-          <p class="mt-3">This data is stored in Chrome's local storage on your device. It is not uploaded to our servers or shared with any third party.</p>
+          <p class="mt-3">This data is stored in Chrome's local storage on your device. Your tracked products and their last update timestamp are additionally backed up to Chrome's sync storage, which Google synchronizes across your Chrome installations if you are signed into Chrome. This sync is handled entirely by Chrome; SaleCheck has no access to the sync transport or Google's servers. Aside from that Chrome-managed backup, this data is not uploaded to our servers or shared with any third party.</p>
         </section>
 
         <section>
           <h2 class="text-xl font-semibold text-white mb-3">Data We Send to Our Servers</h2>
-          <p class="mb-3">When you track a product or when prices are refreshed daily, the extension sends the following to our backend:</p>
+          <p class="mb-3">When you track a product, when prices are refreshed daily, or when you confirm a purchase, the extension sends the following to our backend:</p>
           <ul class="list-disc list-inside space-y-1 text-gray-400">
             <li>The product URL or product identifier (to look up pricing data)</li>
-            <li>Your anonymous UUID (for rate limiting only)</li>
+            <li>Your anonymous UUID, included as a request header for rate limiting</li>
+            <li>When you confirm a purchase: the dollar amount saved on that purchase, used only to update an aggregate global savings counter and an anonymous tier distribution</li>
           </ul>
-          <p class="mt-3">We do not log, store, or associate product URLs with your UUID beyond the immediate request. Our servers do not maintain any per-user profile, browsing history, or product tracking list.</p>
+          <p class="mt-3">Product pricing data is stored in our database keyed by product identifier, never by user. Your UUID is stored separately, linked only to a daily credit counter used for rate limiting. Savings amounts are aggregated into global totals at the moment they are received and are not linked to your UUID or to any product. Our servers do not maintain any per-user profile, browsing history, or list of which products you personally track.</p>
         </section>
 
         <section>
@@ -86,7 +88,7 @@
 
         <section>
           <h2 class="text-xl font-semibold text-white mb-3">Data Retention</h2>
-          <p>Product pricing data on our servers is automatically deleted when no user has requested it for a period of time. Your locally stored data persists until you remove it (by deleting tracked products) or uninstall the extension.</p>
+          <p>Product pricing records on our servers are automatically deleted 30 days after any user last requested them. Rate-limit records tied to your UUID are automatically deleted 7 days after last use. Aggregate counters (global savings total, tier distribution) do not contain any identifying information and are retained indefinitely. Your locally stored data persists until you remove it (by deleting tracked products) or uninstall the extension.</p>
         </section>
 
         <section>
@@ -105,7 +107,7 @@
 
         <section>
           <h2 class="text-xl font-semibold text-white mb-3">Contact</h2>
-          <p>If you have questions about this privacy policy, you can reach us at <span class="text-brand-500">privacy@salecheck.app</span>.</p>
+          <p>If you have questions about this privacy policy, you can reach us at <span class="text-brand-500">dev@salecheck.app</span>.</p>
         </section>
 
       </div>
