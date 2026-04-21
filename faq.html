@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — SaleCheck</title>
+  <meta name="description" content="Answers to common questions about SaleCheck: how price tracking works, which retailers are supported, how data is handled, and our disclaimer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e8e8e8;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: #81DD7D;
+    }
+    .brand-dot {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: #81DD7D;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #81DD7D;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* nav */
+    nav.site {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    nav.site .inner {
+      max-width: 880px; margin: 0 auto;
+      padding: 0 40px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    nav.site a.back {
+      font-size: 14px;
+      color: #9a9a9a;
+      transition: color 150ms ease;
+    }
+    nav.site a.back:hover { color: #f4f4f4; }
+
+    /* header */
+    .page-header {
+      padding: 140px 0 40px;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(129,221,125,0.07), transparent 60%),
+        linear-gradient(180deg, #101010 0%, #0a0a0a 100%);
+    }
+    .page-header .wrap {
+      max-width: 880px; margin: 0 auto; padding: 0 40px;
+    }
+    .page-header .eyebrow { margin-bottom: 16px; }
+    .page-header h1 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      margin-bottom: 12px;
+    }
+    .page-header h1 .accent { color: #81DD7D; }
+    .page-header p.intro {
+      font-size: 18px;
+      color: #9a9a9a;
+      line-height: 1.5;
+      max-width: 640px;
+      margin-top: 8px;
+    }
+
+    /* content */
+    main.content { padding: 40px 0 40px; }
+    main.content .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    main.content section {
+      padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    main.content section:last-of-type { border-bottom: none; }
+    main.content h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f4f4f4;
+      margin-bottom: 16px;
+    }
+    main.content h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f4f4f4;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    main.content p {
+      color: #c4c4c4;
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    main.content p:last-child { margin-bottom: 0; }
+    main.content strong { color: #f4f4f4; font-weight: 600; }
+    main.content a.inline {
+      color: #81DD7D;
+      border-bottom: 1px solid rgba(129,221,125,0.3);
+      transition: border-color 150ms ease;
+    }
+    main.content a.inline:hover { border-bottom-color: #81DD7D; }
+
+    /* disclaimer block */
+    .disclaimer-block {
+      margin: 40px 0 100px;
+      padding: 32px 36px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid #81DD7D;
+      border-radius: 6px;
+    }
+    .disclaimer-block .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: #81DD7D;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .disclaimer-block h2 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f4f4f4;
+      margin-bottom: 14px;
+    }
+    .disclaimer-block p {
+      color: #9a9a9a;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    /* footer */
+    footer.site {
+      padding: 32px 0 60px;
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+      color: #666;
+    }
+    footer.site .inner {
+      max-width: 880px; margin: 0 auto;
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px;
+    }
+    footer.site a { color: #888; transition: color 150ms ease; }
+    footer.site a:hover { color: #f4f4f4; }
+    footer.site .links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 640px) {
+      .page-header { padding: 110px 0 24px; }
+      .page-header h1 { font-size: 40px; }
+      nav.site .inner, .page-header .wrap, main.content .wrap, footer.site .inner {
+        padding: 0 20px;
+      }
+      .disclaimer-block { padding: 24px 22px; margin-left: 20px; margin-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        SaleCheck
+      </a>
+      <a href="index.html" class="back">&larr; Back</a>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="wrap">
+      <div class="eyebrow">Frequently Asked</div>
+      <h1>Questions, <span class="accent">answered.</span></h1>
+      <p class="intro">Short answers to the things people ask most. If you need something more detailed, privacy specifics live on the <a href="privacy.html" style="color:#81DD7D;">privacy page</a>.</p>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="wrap">
+
+      <section>
+        <h2>1. What is SaleCheck?</h2>
+        <p>SaleCheck is a Chrome extension that watches the price of any Amazon product you're tracking and tells you when it drops. You click Track Product on an Amazon page, the extension checks the price once a day, and a small badge appears on the toolbar icon when something in your list goes on sale. No account, no email, no popups.</p>
+      </section>
+
+      <section>
+        <h2>2. How does the price tracking work?</h2>
+        <p>When you track a product, SaleCheck sends the product identifier (not you) to our backend, which looks up current pricing and recent history from a third-party data provider. Those numbers are stored against the product, not against you. Once a day, a background job refreshes every tracked product's price so your list is always current. Nothing runs on the Amazon pages you visit. The extension only reads the URL of the active tab when you choose to interact with it.</p>
+      </section>
+
+      <section>
+        <h2>3. Which retailers are supported, and why only Amazon right now?</h2>
+        <p>SaleCheck launched with Amazon because it has the largest catalog and the most reliable historical pricing data. Support for additional retailers is planned, but data sources compatible with our specific approach are uncommon.</p>
+      </section>
+
+      <section>
+        <h2>4. How often are prices updated?</h2>
+        <p>Prices refresh once a day at around 5 AM Eastern time. Real-time price monitoring is not something SaleCheck does. If Amazon drops a price mid-day, the extension will catch it on the next morning's run.</p>
+      </section>
+
+      <section>
+        <h2>5. Does SaleCheck require an account?</h2>
+        <p>No. There is no sign-up, no email, no password, and no profile on our servers. The extension generates a random anonymous identifier when you install it, which is used only for rate limiting. It cannot be linked to your identity or browsing history.</p>
+      </section>
+
+      <section>
+        <h2>6. What does SaleCheck do with my data?</h2>
+        <p>Almost nothing. Your tracked product list lives in your browser's local storage. Chrome's built-in sync may back it up to your Google account if you are signed in, but SaleCheck never touches that sync transport. When you confirm a purchase, we receive the dollar amount saved and nothing else. That amount rolls into a global counter with no link back to you. Full detail is on the <a class="inline" href="privacy.html">privacy page</a>.</p>
+      </section>
+
+      <section>
+        <h2>7. Why doesn't SaleCheck accept affiliate-tagged links?</h2>
+        <p>Three reasons, in order.</p>
+
+        <h3>What SaleCheck does with links today.</h3>
+        <p>If you paste a link that already contains an affiliate tag, the extension rejects it with an error. That rejection is a guardrail.</p>
+
+        <h3>Why copied links often look "clean" even without us.</h3>
+        <p>When you copy a product URL from Amazon in Chrome and some other Chromium browsers, the browser itself removes the affiliate tag on the client side before writing to your clipboard. So when SaleCheck accepts a clean Amazon link, it's because there was nothing to reject. Your clipboard was already clean when you pasted.</p>
+
+        <h3>Why refusing affiliate-tagged links actually protects affiliate marketers.</h3>
+        <p>Amazon Associates' Participation Requirements explicitly prohibit placing affiliate links inside browser extensions. Any Associates member whose tagged links are used inside a Chrome extension is at risk of having their Associates account terminated, which would cut off their commission income entirely. By refusing to carry any affiliate-tagged URL, SaleCheck shields affiliate marketers from accidentally violating Amazon's rules through a third-party extension they didn't build.</p>
+      </section>
+
+      <section>
+        <h2>8. How accurate is the price and sale information?</h2>
+        <p>Generally accurate, but not always. Prices, historical averages, and sale flags come from a third-party data provider and are refreshed once per day. That means they can lag a few hours behind Amazon's live page. The data can also be outright wrong on any given day: a stale price that didn't refresh, a sale flag that didn't trigger, or a reference number that does not match what Amazon is displaying. SaleCheck's sale detection uses Amazon's typical price as a reference, which mirrors what Amazon itself shows on its product pages in most cases, but the approximation will sometimes be off. We don't guarantee catching every deal, and we don't guarantee that a flagged sale is the lowest a product will ever reach. The extension is meant to get you close, consistently, with very little effort on your part.</p>
+      </section>
+
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="wrap">
+      <section id="disclaimer" class="disclaimer-block">
+        <div class="label">Disclaimer</div>
+        <h2>Data accuracy and use at your own risk</h2>
+        <p>SaleCheck is provided as-is, with no warranty of any kind. Price data is pulled from third-party sources and may be delayed, incomplete, or inaccurate. SaleCheck is not responsible for purchase decisions made using this information, or for any losses resulting from missed deals, stale prices, or data errors. Use of the extension constitutes acceptance of these terms.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site">
+    <div class="inner">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="brand">
+          <span class="brand-dot">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          SaleCheck
+        </span>
+        <span style="color:#666;">&copy; 2026. All rights reserved.</span>
+      </div>
+      <div class="links">
+        <a href="index.html">Home</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="faq.html#disclaimer">Disclaimer</a>
+        <a href="mailto:dev@salecheck.app">dev@salecheck.app</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
