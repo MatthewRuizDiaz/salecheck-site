@@ -7,118 +7,287 @@
   <meta name="description" content="SaleCheck privacy policy. We don't collect personal data.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          colors: {
-            brand: { 500: '#338dff', 600: '#1a6df5' },
-            surface: { 900: '#0f1117', 800: '#161822', 700: '#1e2030' }
-          }
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e8e8e8;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: #81DD7D;
+    }
+    .brand-dot {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: #81DD7D;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #81DD7D;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* nav */
+    nav.site {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    nav.site .inner {
+      max-width: 880px; margin: 0 auto;
+      padding: 0 40px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    nav.site a.back {
+      font-size: 14px;
+      color: #9a9a9a;
+      transition: color 150ms ease;
+    }
+    nav.site a.back:hover { color: #f4f4f4; }
+
+    /* header block */
+    .page-header {
+      padding: 140px 0 40px;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(129,221,125,0.07), transparent 60%),
+        linear-gradient(180deg, #101010 0%, #0a0a0a 100%);
+    }
+    .page-header .wrap {
+      max-width: 880px; margin: 0 auto; padding: 0 40px;
+    }
+    .page-header .eyebrow { margin-bottom: 16px; }
+    .page-header h1 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      margin-bottom: 12px;
+    }
+    .page-header h1 .accent { color: #81DD7D; }
+    .page-header .last-updated {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    /* content */
+    main.content {
+      padding: 40px 0 100px;
+    }
+    main.content .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    main.content section {
+      padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    main.content section:last-of-type { border-bottom: none; }
+    main.content h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f4f4f4;
+      margin-bottom: 16px;
+    }
+    main.content p {
+      color: #c4c4c4;
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    main.content p:last-child { margin-bottom: 0; }
+    main.content strong { color: #f4f4f4; font-weight: 600; }
+    main.content ul {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+    }
+    main.content ul li {
+      position: relative;
+      padding-left: 22px;
+      color: #9a9a9a;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    main.content ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 2px;
+      background: #81DD7D;
+      opacity: 0.8;
+    }
+    main.content ul li strong { color: #e8e8e8; }
+    main.content .contact-email {
+      color: #81DD7D;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+    }
+
+    /* footer */
+    footer.site {
+      padding: 32px 0 60px;
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+      color: #666;
+    }
+    footer.site .inner {
+      max-width: 880px; margin: 0 auto;
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px;
+    }
+    footer.site a { color: #888; transition: color 150ms ease; }
+    footer.site a:hover { color: #f4f4f4; }
+
+    @media (max-width: 640px) {
+      .page-header { padding: 110px 0 24px; }
+      .page-header h1 { font-size: 40px; }
+      nav.site .inner, .page-header .wrap, main.content .wrap, footer.site .inner {
+        padding: 0 20px;
       }
     }
-  </script>
+  </style>
 </head>
-<body class="bg-surface-900 text-gray-300 font-sans antialiased">
+<body>
 
-  <!-- Nav -->
-  <nav class="fixed top-0 w-full bg-surface-900/80 backdrop-blur-md border-b border-white/5 z-50">
-    <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2">
-        <svg class="w-7 h-7 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
-        <span class="text-lg font-bold text-white">SaleCheck</span>
+  <!-- NAV -->
+  <nav class="site">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        SaleCheck
       </a>
-      <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">&larr; Back</a>
+      <a href="index.html" class="back">&larr; Back</a>
     </div>
   </nav>
 
-  <!-- Content -->
-  <main class="pt-28 pb-20 px-6">
-    <div class="max-w-3xl mx-auto">
-      <h1 class="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-      <p class="text-sm text-gray-500 mb-10">Last updated: April 20, 2026</p>
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="wrap">
+      <div class="eyebrow">Legal</div>
+      <h1>Privacy <span class="accent">Policy.</span></h1>
+      <div class="last-updated">Last updated — April 20, 2026</div>
+    </div>
+  </header>
 
-      <div class="space-y-8 text-gray-300 leading-relaxed">
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="wrap">
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Overview</h2>
-          <p>SaleCheck is a Chrome extension that tracks product prices and shows you when prices drop. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.</p>
-        </section>
+      <section>
+        <h2>Overview</h2>
+        <p>SaleCheck is a Chrome extension that tracks product prices and shows you when prices drop. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Data We Collect</h2>
-          <p class="mb-3"><strong class="text-white">We do not collect personal information.</strong> There are no user accounts, no emails, no passwords, and no sign-up process.</p>
-          <p class="mb-3">The extension generates a random, anonymous identifier (UUID) on installation. This UUID is used solely for rate limiting API requests to prevent abuse. It cannot be linked to your identity, browsing history, or any personal information.</p>
-          <p><strong class="text-white">Data stored locally in your browser:</strong></p>
-          <ul class="list-disc list-inside mt-2 space-y-1 text-gray-400">
-            <li>Product URLs and identifiers for items you choose to track</li>
-            <li>Product titles, prices, and historical price data returned by our backend</li>
-            <li>Your anonymous UUID</li>
-            <li>App preferences, including your cumulative savings total and selected pig accessory</li>
-          </ul>
-          <p class="mt-3">This data is stored in Chrome's local storage on your device. Your tracked products and their last update timestamp are additionally backed up to Chrome's sync storage, which Google synchronizes across your Chrome installations if you are signed into Chrome. This sync is handled entirely by Chrome; SaleCheck has no access to the sync transport or Google's servers. Aside from that Chrome-managed backup, this data is not uploaded to our servers or shared with any third party.</p>
-        </section>
+      <section>
+        <h2>Data We Collect</h2>
+        <p><strong>We do not collect personal information.</strong> There are no user accounts, no emails, no passwords, and no sign-up process.</p>
+        <p>The extension generates a random, anonymous identifier (UUID) on installation. This UUID is used solely for rate limiting API requests to prevent abuse. It cannot be linked to your identity, browsing history, or any personal information.</p>
+        <p><strong>Data stored locally in your browser:</strong></p>
+        <ul>
+          <li>Product URLs and identifiers for items you choose to track</li>
+          <li>Product titles, prices, and historical price data returned by our backend</li>
+          <li>Your anonymous UUID</li>
+          <li>App preferences, including your cumulative savings total and selected pig accessory</li>
+        </ul>
+        <p>This data is stored in Chrome's local storage on your device. Your tracked products and their last update timestamp are additionally backed up to Chrome's sync storage, which Google synchronizes across your Chrome installations if you are signed into Chrome. This sync is handled entirely by Chrome; SaleCheck has no access to the sync transport or Google's servers. Aside from that Chrome-managed backup, this data is not uploaded to our servers or shared with any third party.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Data We Send to Our Servers</h2>
-          <p class="mb-3">When you track a product, when prices are refreshed daily, or when you confirm a purchase, the extension sends the following to our backend:</p>
-          <ul class="list-disc list-inside space-y-1 text-gray-400">
-            <li>The product URL or product identifier (to look up pricing data)</li>
-            <li>Your anonymous UUID, included as a request header for rate limiting</li>
-            <li>When you confirm a purchase: the dollar amount saved on that purchase, used only to update an aggregate global savings counter and an anonymous tier distribution</li>
-          </ul>
-          <p class="mt-3">Product pricing data is stored in our database keyed by product identifier, never by user. Your UUID is stored separately, linked only to a daily credit counter used for rate limiting. Savings amounts are aggregated into global totals at the moment they are received and are not linked to your UUID or to any product. Our servers do not maintain any per-user profile, browsing history, or list of which products you personally track.</p>
-        </section>
+      <section>
+        <h2>Data We Send to Our Servers</h2>
+        <p>When you track a product, when prices are refreshed daily, or when you confirm a purchase, the extension sends the following to our backend:</p>
+        <ul>
+          <li>The product URL or product identifier (to look up pricing data)</li>
+          <li>Your anonymous UUID, included as a request header for rate limiting</li>
+          <li>When you confirm a purchase: the dollar amount saved on that purchase, used only to update an aggregate global savings counter and an anonymous tier distribution</li>
+        </ul>
+        <p>Product pricing data is stored in our database keyed by product identifier, never by user. Your UUID is stored separately, linked only to a daily credit counter used for rate limiting. Savings amounts are aggregated into global totals at the moment they are received and are not linked to your UUID or to any product. Our servers do not maintain any per-user profile, browsing history, or list of which products you personally track.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Third-Party Services</h2>
-          <p class="mb-3">Our backend uses third-party pricing data services to retrieve product information. These services receive product identifiers (not your personal information) to return pricing data. We do not share your UUID or any identifying information with these services.</p>
-        </section>
+      <section>
+        <h2>Third-Party Services</h2>
+        <p>Our backend uses third-party pricing data services to retrieve product information. These services receive product identifiers (not your personal information) to return pricing data. We do not share your UUID or any identifying information with these services.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Cookies and Tracking</h2>
-          <p>SaleCheck does not use cookies, tracking pixels, analytics scripts, or any form of user tracking. We do not track your browsing activity. The extension only activates when you explicitly interact with it.</p>
-        </section>
+      <section>
+        <h2>Cookies and Tracking</h2>
+        <p>SaleCheck does not use cookies, tracking pixels, analytics scripts, or any form of user tracking. We do not track your browsing activity. The extension only activates when you explicitly interact with it.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Data Retention</h2>
-          <p>Product pricing records on our servers are automatically deleted 30 days after any user last requested them. Rate-limit records tied to your UUID are automatically deleted 7 days after last use. Aggregate counters (global savings total, tier distribution) do not contain any identifying information and are retained indefinitely. Your locally stored data persists until you remove it (by deleting tracked products) or uninstall the extension.</p>
-        </section>
+      <section>
+        <h2>Data Retention</h2>
+        <p>Product pricing records on our servers are automatically deleted 30 days after any user last requested them. Rate-limit records tied to your UUID are automatically deleted 7 days after last use. Aggregate counters (global savings total, tier distribution) do not contain any identifying information and are retained indefinitely. Your locally stored data persists until you remove it (by deleting tracked products) or uninstall the extension.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Your Rights</h2>
-          <ul class="list-disc list-inside space-y-1 text-gray-400">
-            <li><strong class="text-gray-200">Delete your data:</strong> Remove any tracked product from the extension at any time, or uninstall the extension to delete all local data.</li>
-            <li><strong class="text-gray-200">Export your data:</strong> Use the export button in the extension to download your tracked product list.</li>
-            <li><strong class="text-gray-200">No data on our servers:</strong> We do not maintain any per-user data. There is nothing to request deletion of.</li>
-          </ul>
-        </section>
+      <section>
+        <h2>Your Rights</h2>
+        <ul>
+          <li><strong>Delete your data:</strong> Remove any tracked product from the extension at any time, or uninstall the extension to delete all local data.</li>
+          <li><strong>Export your data:</strong> Use the export button in the extension to download your tracked product list.</li>
+          <li><strong>No data on our servers:</strong> We do not maintain any per-user data. There is nothing to request deletion of.</li>
+        </ul>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Changes to This Policy</h2>
-          <p>If we make material changes to this privacy policy, we will update this page and the "Last updated" date above. Continued use of the extension after changes constitutes acceptance of the updated policy.</p>
-        </section>
+      <section>
+        <h2>Changes to This Policy</h2>
+        <p>If we make material changes to this privacy policy, we will update this page and the "Last updated" date above. Continued use of the extension after changes constitutes acceptance of the updated policy.</p>
+      </section>
 
-        <section>
-          <h2 class="text-xl font-semibold text-white mb-3">Contact</h2>
-          <p>If you have questions about this privacy policy, you can reach us at <span class="text-brand-500">dev@salecheck.app</span>.</p>
-        </section>
+      <section>
+        <h2>Contact</h2>
+        <p>If you have questions about this privacy policy, you can reach us at <span class="contact-email">dev@salecheck.app</span>.</p>
+      </section>
 
-      </div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-white/5 py-10 px-6">
-    <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <span class="text-sm text-gray-500">&copy; 2026 SaleCheck. All rights reserved.</span>
-      <a href="index.html" class="text-sm text-gray-500 hover:text-gray-300 transition">Home</a>
+  <!-- FOOTER -->
+  <footer class="site">
+    <div class="inner">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="brand">
+          <span class="brand-dot">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          SaleCheck
+        </span>
+        <span style="color:#666;">&copy; 2026. All rights reserved.</span>
+      </div>
+      <a href="index.html">Home</a>
     </div>
   </footer>
 

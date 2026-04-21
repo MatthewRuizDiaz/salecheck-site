@@ -3,297 +3,968 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name='impact-site-verification' value='a5b0e6b6-0e87-4dd4-b089-85e7d232a459'>
-  <title>SaleCheck — Track Prices. Get Notified. Save Money.</title>
-  <meta name="description" content="SaleCheck is a Chrome extension that passively tracks product prices across major retailers and notifies you when prices drop.">
+  <meta name="impact-site-verification" value="a5b0e6b6-0e87-4dd4-b089-85e7d232a459">
+  <title>SaleCheck — Track Prices. Buy When They Drop.</title>
+  <meta name="description" content="A quiet Chrome extension that watches product prices on Amazon and tells you when a deal is real. No account, no spam, no popups.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          colors: {
-            brand: {
-              50: '#eef7ff',
-              100: '#d9edff',
-              200: '#bce0ff',
-              300: '#8ecdff',
-              400: '#59b0ff',
-              500: '#338dff',
-              600: '#1a6df5',
-              700: '#1357e1',
-              800: '#1646b6',
-              900: '#183e8f',
-            },
-            surface: {
-              900: '#0f1117',
-              800: '#161822',
-              700: '#1e2030',
-              600: '#282a3a',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    .gradient-text {
-      background: linear-gradient(135deg, #338dff 0%, #59b0ff 50%, #8ecdff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    html, body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e8e8e8;
+      -webkit-font-smoothing: antialiased;
     }
-    .glow { box-shadow: 0 0 60px rgba(51, 141, 255, 0.15); }
-    .retailer-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .retailer-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(51, 141, 255, 0.1); }
+    body { min-height: 100vh; }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ------------ shared ------------ */
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: #81DD7D;
+    }
+    .brand-dot {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: #81DD7D;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #81DD7D;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .headline {
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      text-wrap: balance;
+    }
+    .headline .accent { color: #81DD7D; }
+    .subhead {
+      font-size: 20px;
+      line-height: 1.5;
+      color: #9a9a9a;
+      font-weight: 400;
+      text-wrap: pretty;
+    }
+    .subhead b { color: #e8e8e8; font-weight: 600; }
+
+    .pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+      color: #d4d4d4;
+      font-weight: 500;
+    }
+    .pill.soon { color: #666; border-style: dashed; }
+    .pill.green {
+      color: #81DD7D;
+      background: rgba(129,221,125,0.08);
+      border-color: rgba(129,221,125,0.25);
+    }
+
+    /* ------------ nav ------------ */
+    nav.site {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    nav.site .inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 40px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    nav.site .links {
+      display: flex; align-items: center; gap: 28px;
+      font-size: 14px; color: #9a9a9a;
+    }
+    nav.site .links a { transition: color 150ms ease; }
+    nav.site .links a:hover { color: #f4f4f4; }
+    nav.site .social {
+      display: flex; align-items: center; gap: 14px;
+      margin-left: 14px;
+      padding-left: 18px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+    }
+    nav.site .social svg { width: 16px; height: 16px; display: block; }
+    @media (max-width: 720px) {
+      nav.site .links { display: none; }
+    }
+
+    /* ------------ hero ------------ */
+    .hero {
+      position: relative;
+      padding: 160px 0 100px;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(129,221,125,0.08), transparent 60%),
+        linear-gradient(180deg, #181818 0%, #0e0e0e 100%);
+    }
+    .hero .inner {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero .brand { margin-bottom: 28px; }
+    .hero h1 {
+      font-size: 76px;
+      margin-bottom: 24px;
+    }
+    .hero .subhead { max-width: 520px; margin-bottom: 36px; }
+    .hero .retailers {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .hero .retailers-label {
+      font-size: 13px; color: #666; margin-right: 4px;
+    }
+
+    .popup-mock {
+      width: 450px;
+      height: 454px;
+      background: #282828;
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 80px -20px rgba(0,0,0,0.6),
+        0 20px 40px -15px rgba(0,0,0,0.5);
+      overflow: hidden;
+      color: #e5e5e5;
+      font-size: 12px;
+      margin: 0 auto;
+      transform: scale(1.02);
+      transform-origin: center;
+    }
+    .pop-header {
+      padding: 8px 16px 6px;
+      display: flex; align-items: flex-start; gap: 4px;
+    }
+    .pop-track-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .pop-track-btn {
+      height: 24px;
+      background: #81DD7D;
+      color: #000;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pop-info-row { display: flex; gap: 4px; }
+    .pop-info-box {
+      flex: 1;
+      background: rgba(64,64,64,0.4);
+      border-radius: 4px;
+      padding: 4px 8px;
+      text-align: center;
+      font-size: 9px;
+    }
+    .pop-info-box.muted { color: #a3a3a3; }
+    .pop-info-box.green { color: #81DD7D; }
+    .pop-pig { width: 62px; height: 62px; flex-shrink: 0; margin-left: -4px; margin-right: -8px; margin-top: -7px; }
+
+    .pop-col-headers {
+      display: grid;
+      grid-template-columns: 1fr 50px 50px 34px 44px;
+      align-items: center;
+      height: 28px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(82,82,82,0.3);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a3a3a3;
+      font-weight: 500;
+    }
+    .pop-col-headers > div { text-align: center; }
+    .pop-col-headers > div:first-child { text-align: left; padding-left: 10px; }
+
+    .pop-row {
+      display: grid;
+      grid-template-columns: 1fr 50px 50px 34px 44px;
+      align-items: center;
+      height: 34px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(64,64,64,0.3);
+      font-size: 12px;
+      position: relative;
+    }
+    .pop-row.border-gold   { border-left: 2px solid #E5C05B; }
+    .pop-row.border-silver { border-left: 2px solid #B4B8BC; }
+    .pop-row.border-bronze { border-left: 2px solid #CD7F32; }
+    .pop-row.border-green  { border-left: 2px solid #81DD7D; }
+    .pop-row .name {
+      padding-left: 6px;
+      color: #e5e5e5;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .new-dot {
+      width: 6px; height: 6px;
+      background: #81DD7D; border-radius: 50%;
+      box-shadow: 0 0 4px rgba(129,221,125,0.6);
+      flex-shrink: 0;
+    }
+    .pop-row .was  { text-align: center; color: #a3a3a3; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .pop-row .now  { text-align: center; color: #f5f5f5; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .pop-row .pct  { text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pct.gold   { color: #F2D37C; }
+    .pct.silver { color: #D4D7DB; }
+    .pct.bronze { color: #F2A878; }
+    .pct.green  { color: #81DD7D; }
+
+    /* ------------ section: how it works ------------ */
+    section.how {
+      padding: 120px 0;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(229,192,91,0.05), transparent 60%),
+        linear-gradient(180deg, #0e0e0e 0%, #0a0a0a 100%);
+    }
+    .section-head { text-align: center; max-width: 680px; margin: 0 auto 60px; }
+    .section-head h2 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      color: #f4f4f4;
+      margin-bottom: 16px;
+    }
+    .section-head h2 .accent { color: #81DD7D; }
+    .section-head p { font-size: 18px; color: #9a9a9a; line-height: 1.5; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .step {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 36px 32px;
+    }
+    .step .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: #81DD7D;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .step h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f4f4f4;
+      margin-bottom: 10px;
+    }
+    .step p { color: #9a9a9a; font-size: 15px; line-height: 1.55; }
+
+    /* ------------ section: deal intel ------------ */
+    section.deal {
+      padding: 120px 0;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(129,221,125,0.06), transparent 55%),
+        linear-gradient(180deg, #0a0a0a 0%, #0a0a0a 100%);
+    }
+    .deal .inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .deal h2 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      margin-bottom: 20px;
+    }
+    .deal h2 .accent { color: #81DD7D; }
+    .deal .subhead { margin-bottom: 40px; max-width: 480px; }
+    .deal-keys { display: flex; flex-direction: column; gap: 14px; }
+    .deal-key {
+      display: flex; align-items: center; gap: 14px;
+      font-size: 16px;
+    }
+    .deal-key .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .deal-key .k { color: #f4f4f4; font-weight: 600; min-width: 140px; }
+    .deal-key .d { color: #888; font-size: 14px; }
+
+    /* ------------ section: savings ------------ */
+    section.savings {
+      padding: 120px 0;
+      background:
+        radial-gradient(ellipse at 30% 30%, rgba(129,221,125,0.08), transparent 55%),
+        linear-gradient(180deg, #0f140e 0%, #0a0a0a 100%);
+    }
+    .savings .inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .savings h2 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      margin-bottom: 24px;
+    }
+    .savings h2 .accent { color: #81DD7D; }
+    .bignum {
+      font-size: 104px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: #81DD7D;
+      line-height: 0.9;
+      margin: 20px 0 8px;
+    }
+    .bignum-label {
+      font-size: 14px;
+      color: #888;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .savings .subhead { margin-top: 24px; max-width: 460px; }
+
+    /* ------------ section: pig world ------------ */
+    section.pig {
+      padding: 120px 0;
+      background:
+        radial-gradient(ellipse at 75% 25%, rgba(251,191,36,0.08), transparent 55%),
+        linear-gradient(180deg, #141210 0%, #0a0a0a 100%);
+    }
+    .pig .inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .pig h2 {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #f4f4f4;
+      margin-bottom: 20px;
+    }
+    .pig h2 .accent { color: #81DD7D; }
+    .pig .subhead { margin-bottom: 36px; max-width: 440px; }
+    .tier-ladder { display: flex; flex-direction: column; gap: 16px; }
+    .tier-row {
+      display: flex; align-items: center; gap: 16px; font-size: 16px;
+    }
+    .tier-row .amt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #888;
+      min-width: 80px;
+    }
+    .tier-row .name { color: #e5e5e5; font-weight: 600; min-width: 140px; }
+    .tier-row .icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+
+    .meadow {
+      width: 450px; height: 454px;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      margin: 0 auto;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 80px -20px rgba(0,0,0,0.6);
+    }
+
+    /* ------------ cta ------------ */
+    section.cta {
+      padding: 120px 0;
+      text-align: center;
+      background: linear-gradient(180deg, #0a0a0a 0%, #0e0e0e 100%);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .cta h2 {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #f4f4f4;
+      margin-bottom: 20px;
+    }
+    .cta h2 .accent { color: #81DD7D; }
+    .cta p {
+      font-size: 18px;
+      color: #9a9a9a;
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.5;
+    }
+
+    /* ------------ footer ------------ */
+    footer.site {
+      padding: 40px 0 60px;
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+      color: #666;
+    }
+    footer.site .inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer.site a { color: #888; transition: color 150ms ease; }
+    footer.site a:hover { color: #f4f4f4; }
+    footer.site .social { display: flex; gap: 14px; align-items: center; }
+    footer.site .social svg { width: 16px; height: 16px; display: block; }
+
+    /* ------------ responsive ------------ */
+    @media (max-width: 960px) {
+      .hero { padding: 120px 0 60px; }
+      .hero .inner, .deal .inner, .savings .inner, .pig .inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero h1 { font-size: 56px; }
+      .deal h2, .savings h2, .pig h2 { font-size: 44px; }
+      .section-head h2 { font-size: 38px; }
+      .cta h2 { font-size: 48px; }
+      .bignum { font-size: 80px; }
+      .steps { grid-template-columns: 1fr; }
+      .popup-mock { transform: scale(0.95); }
+      .meadow { width: 100%; max-width: 420px; height: auto; aspect-ratio: 450 / 454; }
+    }
+    @media (max-width: 560px) {
+      .wrap, nav.site .inner, footer.site .inner { padding: 0 20px; }
+      .hero h1 { font-size: 44px; }
+      .deal h2, .savings h2, .pig h2 { font-size: 34px; }
+      .section-head h2 { font-size: 30px; }
+      .cta h2 { font-size: 36px; }
+      .bignum { font-size: 64px; }
+      .popup-mock { transform: scale(0.82); transform-origin: top center; margin-bottom: -60px; }
+    }
   </style>
 </head>
-<body class="bg-surface-900 text-gray-200 font-sans antialiased">
+<body>
 
-  <!-- Nav -->
-  <nav class="fixed top-0 w-full bg-surface-900/80 backdrop-blur-md border-b border-white/5 z-50">
-    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-7 h-7 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
-        <span class="text-lg font-bold text-white">SaleCheck</span>
-      </div>
-      <div class="hidden sm:flex items-center gap-6 text-sm text-gray-400">
-        <a href="#how-it-works" class="hover:text-white transition">How It Works</a>
-        <a href="#features" class="hover:text-white transition">Features</a>
-        <a href="#retailers" class="hover:text-white transition">Retailers</a>
-        <a href="privacy.html" class="hover:text-white transition">Privacy</a>
-        <div class="flex items-center gap-3 ml-2 border-l border-white/10 pl-4">
-          <a href="https://x.com/SaleCheckApp" target="_blank" rel="noopener" class="hover:text-white transition" aria-label="Follow us on X">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  <!-- ============ NAV ============ -->
+  <nav class="site">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <span class="brand-dot">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        SaleCheck
+      </a>
+      <div class="links">
+        <a href="#how">How It Works</a>
+        <a href="#deal">Deal Intelligence</a>
+        <a href="#pig">Pig World</a>
+        <a href="privacy.html">Privacy</a>
+        <span class="social">
+          <a href="https://x.com/SaleCheckApp" target="_blank" rel="noopener" aria-label="SaleCheck on X">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a href="https://instagram.com/salecheckapp" target="_blank" rel="noopener" class="hover:text-white transition" aria-label="Follow us on Instagram">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          <a href="https://instagram.com/salecheckapp" target="_blank" rel="noopener" aria-label="SaleCheck on Instagram">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
           </a>
-        </div>
+        </span>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="pt-32 pb-20 px-6">
-    <div class="max-w-3xl mx-auto text-center">
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-6">
-        Track Prices.<br>
-        <span class="gradient-text">Get Notified.</span><br>
-        Save Money.
-      </h1>
-      <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-        SaleCheck is a Chrome extension that silently monitors product prices across major retailers. When a price drops, you'll know — no account needed, no spam, no hassle.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <div class="inline-flex items-center gap-2 bg-surface-700 border border-white/10 rounded-full px-6 py-3 text-sm text-gray-300">
-          <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap inner">
+      <div class="left">
+        <div class="brand">
+          <span class="brand-dot">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          SaleCheck
+        </div>
+        <div class="eyebrow">Price tracking for Amazon</div>
+        <h1 class="headline">Track Prices.<br/>Buy when they <span class="accent">drop.</span></h1>
+        <p class="subhead">
+          A quiet Chrome extension that checks the price of any product you're watching, every day. When a deal is real, you'll know. <b>No account, no email, no popups.</b>
+        </p>
+        <div class="retailers">
+          <span class="retailers-label">Works with</span>
+          <span class="pill">Amazon</span>
+          <span class="pill soon">More retailers coming</span>
+          <span class="pill green">Coming soon to the Chrome Web Store</span>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="popup-mock" id="hero-popup">
+          <div class="pop-header">
+            <div class="pop-track-col" style="margin-right:4px;">
+              <div class="pop-track-btn">Track Product</div>
+              <div class="pop-info-row">
+                <div class="pop-info-box muted">Updated just now</div>
+                <div class="pop-info-box green">Saved $312.47</div>
+              </div>
+            </div>
+            <div class="pop-pig" id="hero-pig"></div>
+          </div>
+
+          <div class="pop-col-headers">
+            <div>Product</div><div>Was</div><div>Now</div><div>%</div><div></div>
+          </div>
+
+          <div class="pop-row border-gold">
+            <div class="name"><span class="new-dot"></span>Noise-Canceling Headphones</div>
+            <div class="was">$400</div>
+            <div class="now">$248</div>
+            <div class="pct gold">38%</div>
+            <div></div>
+          </div>
+          <div class="pop-row border-silver">
+            <div class="name"><span class="new-dot"></span>Cordless Stick Vacuum</div>
+            <div class="was">$650</div>
+            <div class="now">$469</div>
+            <div class="pct silver">28%</div>
+            <div></div>
+          </div>
+          <div class="pop-row border-bronze">
+            <div class="name">6-Inch E-Reader</div>
+            <div class="was">$160</div>
+            <div class="now">$125</div>
+            <div class="pct bronze">22%</div>
+            <div></div>
+          </div>
+          <div class="pop-row border-green">
+            <div class="name">65W USB-C Charger</div>
+            <div class="was">$35</div>
+            <div class="now">$31</div>
+            <div class="pct green">11%</div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow" style="margin-bottom:14px;">How it works</div>
+        <h2>Three steps. <span class="accent">No account.</span></h2>
+        <p>Install, track, get out of the way. Your list lives in your browser, not on a server.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="num">Step 01</div>
+          <h3>Track a product.</h3>
+          <p>Browse to any Amazon product page and hit <b style="color:#e8e8e8;">Track Product</b>. That's the whole setup.</p>
+        </div>
+        <div class="step">
+          <div class="num">Step 02</div>
+          <h3>We watch it.</h3>
+          <p>SaleCheck checks the price once a day, quietly, in the background. Nothing runs on pages you visit.</p>
+        </div>
+        <div class="step">
+          <div class="num">Step 03</div>
+          <h3>You get a nudge.</h3>
+          <p>When the price drops, a small badge appears on the extension icon. Open it, see the deal, decide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEAL INTELLIGENCE ============ -->
+  <section class="deal" id="deal">
+    <div class="wrap inner">
+      <div class="left">
+        <div class="eyebrow">Deal intelligence</div>
+        <h2>Know a <span class="accent">real deal</span> when you see one.</h2>
+        <p class="subhead">
+          Every price is scored against a <b>90-day history</b>. You see if today's number is a historic low, a good price, or a retailer pretending to discount something that's been this price for weeks.
+        </p>
+        <div class="deal-keys">
+          <div class="deal-key">
+            <span class="swatch" style="background:#E5C05B;"></span>
+            <span class="k">Historic Low</span>
+            <span class="d">Cheapest it's been in 90 days</span>
+          </div>
+          <div class="deal-key">
+            <span class="swatch" style="background:#81DD7D;"></span>
+            <span class="k">Great Deal</span>
+            <span class="d">15%+ below the 90-day average</span>
+          </div>
+          <div class="deal-key">
+            <span class="swatch" style="background:#9CA3AF;"></span>
+            <span class="k">Fair Price</span>
+            <span class="d">Around the 90-day average</span>
+          </div>
+          <div class="deal-key">
+            <span class="swatch" style="background:#EF4444;"></span>
+            <span class="k">Overpriced</span>
+            <span class="d">Above typical, wait on it</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="popup-mock">
+          <div class="pop-header">
+            <div class="pop-track-col" style="margin-right:4px;">
+              <div class="pop-track-btn">Track Product</div>
+              <div class="pop-info-row">
+                <div class="pop-info-box muted">Updated 2h ago</div>
+                <div class="pop-info-box green">Saved $152.00</div>
+              </div>
+            </div>
+            <div class="pop-pig" id="deal-pig"></div>
+          </div>
+          <div class="pop-col-headers">
+            <div>Product</div><div>Was</div><div>Now</div><div>%</div><div></div>
+          </div>
+          <div class="pop-row border-gold">
+            <div class="name"><span class="new-dot"></span>Noise-Canceling Headphones</div>
+            <div class="was">$400</div><div class="now">$248</div><div class="pct gold">38%</div><div></div>
+          </div>
+          <div class="pop-row border-silver">
+            <div class="name">8qt Multi-Cooker</div>
+            <div class="was">$130</div><div class="now">$94</div><div class="pct silver">28%</div><div></div>
+          </div>
+          <div class="pop-row border-bronze">
+            <div class="name">Spaceship Brick Set</div>
+            <div class="was">$170</div><div class="now">$131</div><div class="pct bronze">23%</div><div></div>
+          </div>
+          <div class="pop-row border-green">
+            <div class="name">65W USB-C Charger</div>
+            <div class="was">$35</div><div class="now">$31</div><div class="pct green">11%</div><div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SAVINGS ============ -->
+  <section class="savings">
+    <div class="wrap inner">
+      <div class="left">
+        <div class="eyebrow">Savings tracker</div>
+        <h2>See exactly how much <span class="accent">you've saved.</span></h2>
+        <div class="bignum">$312.47</div>
+        <div class="bignum-label">— Your running total</div>
+        <p class="subhead">Hit the cart, head over to Amazon, come back to confirm. SaleCheck keeps a private running total of every price drop you actually cashed in on.</p>
+      </div>
+      <div class="right">
+        <div class="popup-mock">
+          <div class="pop-header">
+            <div class="pop-track-col" style="margin-right:4px;">
+              <div class="pop-track-btn">Track Product</div>
+              <div class="pop-info-row">
+                <div class="pop-info-box muted">Updated just now</div>
+                <div class="pop-info-box green" style="font-weight:600;">Saved $312.47</div>
+              </div>
+            </div>
+            <div class="pop-pig" id="savings-pig"></div>
+          </div>
+          <div class="pop-col-headers">
+            <div>Product</div><div>Was</div><div>Now</div><div>%</div><div></div>
+          </div>
+          <div class="pop-row border-gold" style="position:relative;">
+            <div style="position:absolute; inset:0; background:#282828; display:grid; grid-template-columns: 1fr 50px 50px 34px 44px; align-items:center; padding:0 16px; z-index:3;">
+              <span style="font-size:11px; color:#e5e5e5; white-space:nowrap;">
+                Did you buy this? <span style="color:#81DD7D; font-weight:600;">$152.00 saved</span>
+              </span>
+              <div style="grid-column: 2 / span 4; padding-left:10px; display:flex; gap:8px; align-items:center;">
+                <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:4px; background:rgba(129,221,125,0.15); color:#81DD7D;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4.5 12.75 6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:4px; color:#a3a3a3;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div style="position:absolute; bottom:0; left:0; height:2px; width:55%; background:#81DD7D;"></div>
+            </div>
+          </div>
+          <div class="pop-row border-silver">
+            <div class="name">8qt Multi-Cooker</div>
+            <div class="was">$130</div><div class="now">$94</div><div class="pct silver">28%</div><div></div>
+          </div>
+          <div class="pop-row border-bronze">
+            <div class="name">6-Inch E-Reader</div>
+            <div class="was">$160</div><div class="now">$125</div><div class="pct bronze">22%</div><div></div>
+          </div>
+          <div class="pop-row border-green">
+            <div class="name">65W USB-C Charger</div>
+            <div class="was">$35</div><div class="now">$31</div><div class="pct green">11%</div><div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PIG WORLD ============ -->
+  <section class="pig" id="pig">
+    <div class="wrap inner">
+      <div class="left">
+        <div class="eyebrow">Pig World</div>
+        <h2>A piggy bank that <span class="accent">grows</span> with you.</h2>
+        <p class="subhead">Hit savings milestones, unlock accessories for your pig companion, and visit the meadow to meet fellow savers. A small reward for not overpaying.</p>
+        <div class="tier-ladder">
+          <div class="tier-row">
+            <span class="amt">$50</span>
+            <div class="icon">
+              <svg viewBox="0 0 30 30" width="24" height="24"><defs><clipPath id="tier-hat-clip"><path d="M 15 4 L 5 25 L 25 25 Z"/></clipPath></defs><path d="M 15 4 L 5 25 L 25 25 Z" fill="#fff" stroke="#313D4C" stroke-width="2.2" stroke-linejoin="round"/><g clip-path="url(#tier-hat-clip)"><path d="M 8 11 L 22 16" stroke="#EF476F" stroke-width="2"/><path d="M 6 16 L 24 21" stroke="#FFD166" stroke-width="2"/></g><circle cx="15" cy="4" r="2" fill="#06D6A0" stroke="#313D4C" stroke-width="1"/></svg>
+            </div>
+            <span class="name">Party Hat</span>
+          </div>
+          <div class="tier-row">
+            <span class="amt">$200</span>
+            <div class="icon">
+              <svg viewBox="0 0 30 30" width="24" height="24"><path d="M 3 12 L 22 8" stroke="#313D4C" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M 5 11 L 20 9 C 22 18, 6 20, 5 11 Z" fill="#313D4C" stroke="#313D4C" stroke-width="1" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="name">Pirate Patch</span>
+          </div>
+          <div class="tier-row">
+            <span class="amt">$500</span>
+            <div class="icon">
+              <svg viewBox="0 0 30 30" width="24" height="24"><circle cx="15" cy="15" r="10" fill="#1F2937" stroke="#313D4C" stroke-width="1.5"/><circle cx="15" cy="15" r="5" fill="#EF4444"/><circle cx="16" cy="14" r="1.2" fill="#FCA5A5"/></svg>
+            </div>
+            <span class="name">Cyborg Eye</span>
+          </div>
+          <div class="tier-row">
+            <span class="amt">$1000</span>
+            <div class="icon">
+              <svg viewBox="0 0 30 30" width="24" height="24"><path d="M 5 22 L 3 10 L 10 15 L 15 7 L 20 15 L 27 10 L 25 22 Q 15 26 5 22 Z" fill="#fbbf24" stroke="#374151" stroke-width="1.5" stroke-linejoin="round"/><circle cx="15" cy="12" r="1.5" fill="#a855f7"/></svg>
+            </div>
+            <span class="name">Golden Crown</span>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="meadow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 454" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; width:100%; height:100%;">
+            <defs>
+              <linearGradient id="pw-day" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7CA1B8"/>
+                <stop offset="100%" stop-color="#D6D0AA"/>
+              </linearGradient>
+            </defs>
+            <rect width="450" height="454" fill="url(#pw-day)"/>
+            <circle cx="360" cy="0" r="18" fill="#FFEA99"/>
+            <path d="M 50,15 a 6,6 0 0,1 8,-5 a 10,10 0 0,1 18,-3 a 8,8 0 0,1 12,3 a 6,6 0 0,1 8,5 z" fill="#fff" opacity="0.8"/>
+            <path d="M 280,10 a 5,5 0 0,1 6,-4 a 8,8 0 0,1 12,-2 a 6,6 0 0,1 8,2 a 5,5 0 0,1 6,4 z" fill="#fff" opacity="0.6"/>
+            <path d="M -20,60  Q 120,40  250,60  T 470,50  L 470,460 L -20,460 Z" fill="#426b5d"/>
+            <path d="M -20,165 Q 150,180 280,165 T 470,175 L 470,460 L -20,460 Z" fill="#4e8260"/>
+            <path d="M -20,245 Q 100,230 240,245 T 470,235 L 470,460 L -20,460 Z" fill="#5b996a"/>
+            <path d="M -20,305 Q 160,320 310,305 T 470,315 L 470,460 L -20,460 Z" fill="#65ad75"/>
+            <path d="M -20,410 L 470,410 L 470,460 L -20,460 Z" fill="#488255"/>
           </svg>
-          Coming soon to the Chrome Web Store
+          <div id="meadow-pigs" style="position:absolute; inset:0;"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How It Works -->
-  <section id="how-it-works" class="py-20 px-6">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-white text-center mb-4">How It Works</h2>
-      <p class="text-gray-400 text-center mb-14 max-w-xl mx-auto">Three steps. No account. No setup. Just savings.</p>
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Step 1 -->
-        <div class="bg-surface-800 border border-white/5 rounded-2xl p-8 text-center glow">
-          <div class="w-14 h-14 rounded-xl bg-brand-600/20 flex items-center justify-center mx-auto mb-5">
-            <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-          </div>
-          <div class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">Step 1</div>
-          <h3 class="text-lg font-semibold text-white mb-2">Track a Product</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">Browse to any product page and click "Track This Product" in the extension. That's it.</p>
-        </div>
-        <!-- Step 2 -->
-        <div class="bg-surface-800 border border-white/5 rounded-2xl p-8 text-center glow">
-          <div class="w-14 h-14 rounded-xl bg-brand-600/20 flex items-center justify-center mx-auto mb-5">
-            <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-          </div>
-          <div class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">Step 2</div>
-          <h3 class="text-lg font-semibold text-white mb-2">We Monitor Daily</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">SaleCheck checks prices automatically every day. No action required on your part.</p>
-        </div>
-        <!-- Step 3 -->
-        <div class="bg-surface-800 border border-white/5 rounded-2xl p-8 text-center glow">
-          <div class="w-14 h-14 rounded-xl bg-brand-600/20 flex items-center justify-center mx-auto mb-5">
-            <svg class="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-          </div>
-          <div class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">Step 3</div>
-          <h3 class="text-lg font-semibold text-white mb-2">Get Notified</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">When a price drops, a badge appears on the extension icon. Open it, see the deal, and buy at the right time.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features -->
-  <section id="features" class="py-20 px-6 bg-surface-800/50">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-white text-center mb-14">Built for Real Shoppers</h2>
-      <div class="grid sm:grid-cols-2 gap-6">
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">No Account Required</h3>
-            <p class="text-sm text-gray-400">Install and start tracking immediately. No sign-up, no email, no password. Your data stays in your browser.</p>
-          </div>
-        </div>
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">Automatic Daily Checks</h3>
-            <p class="text-sm text-gray-400">Prices are refreshed every day in the background. You only hear from us when there's a deal worth knowing about.</p>
-          </div>
-        </div>
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">Multi-Retailer Support</h3>
-            <p class="text-sm text-gray-400">Track products across Amazon, Walmart, Best Buy, Macy's, and more — all in one place.</p>
-          </div>
-        </div>
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">Visual Sale Indicators</h3>
-            <p class="text-sm text-gray-400">Color-coded discount tiers — gold for 55%+ off, silver for 40%+, orange for 20%+. Spot the best deals instantly.</p>
-          </div>
-        </div>
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">Drag, Sort, Rename</h3>
-            <p class="text-sm text-gray-400">Organize your tracked products however you like. Rename titles, drag to reorder, sort by price or discount.</p>
-          </div>
-        </div>
-        <div class="flex gap-4 p-6 bg-surface-800 border border-white/5 rounded-xl">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white mb-1">Privacy First</h3>
-            <p class="text-sm text-gray-400">No personal data collected. No user accounts on our servers. Your tracked products live in your browser, not our database.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Retailers -->
-  <section id="retailers" class="py-20 px-6">
-    <div class="max-w-5xl mx-auto text-center">
-      <h2 class="text-3xl font-bold text-white mb-4">Supported Retailers</h2>
-      <p class="text-gray-400 mb-14 max-w-xl mx-auto">Track products from the stores you already shop at.</p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Amazon</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Walmart</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Best Buy</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Macy's</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Kohl's</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Lowe's</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Nordstrom</span>
-        </div>
-        <div class="retailer-card bg-surface-800 border border-white/5 rounded-xl p-5 flex items-center justify-center">
-          <span class="font-semibold text-white">Old Navy</span>
-        </div>
-      </div>
-      <p class="text-sm text-gray-500 mt-6">More retailers coming soon.</p>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="py-20 px-6 bg-surface-800/50">
-    <div class="max-w-2xl mx-auto text-center">
-      <h2 class="text-3xl font-bold text-white mb-4">Stop Overpaying</h2>
-      <p class="text-gray-400 mb-8 leading-relaxed">
-        SaleCheck is launching soon on the Chrome Web Store. A simple, private, no-nonsense price tracker that works in the background so you don't have to.
-      </p>
-      <div class="inline-flex items-center gap-2 bg-surface-700 border border-white/10 rounded-full px-6 py-3 text-sm text-gray-300">
-        <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+  <!-- ============ CTA ============ -->
+  <section class="cta">
+    <div class="wrap">
+      <h2>Stop <span class="accent">overpaying.</span></h2>
+      <p>SaleCheck is launching soon on the Chrome Web Store. A simple, private, no-nonsense price tracker that works in the background so you don't have to think about it.</p>
+      <span class="pill green">
         Coming soon to the Chrome Web Store
-      </div>
+      </span>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-white/5 py-10 px-6">
-    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
-        <span class="text-sm text-gray-400">&copy; 2026 SaleCheck. All rights reserved.</span>
+  <!-- ============ FOOTER ============ -->
+  <footer class="site">
+    <div class="inner">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="brand">
+          <span class="brand-dot">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          SaleCheck
+        </span>
+        <span style="color:#666;">&copy; 2026. All rights reserved.</span>
       </div>
-      <div class="flex items-center gap-6 text-sm text-gray-500">
-        <a href="privacy.html" class="hover:text-gray-300 transition">Privacy Policy</a>
-        <div class="flex items-center gap-4">
-          <a href="https://x.com/SaleCheckApp" target="_blank" rel="noopener" class="hover:text-gray-300 transition" aria-label="Follow us on X">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <div style="display:flex; gap:24px; align-items:center;">
+        <a href="privacy.html">Privacy</a>
+        <a href="mailto:dev@salecheck.app">dev@salecheck.app</a>
+        <span class="social">
+          <a href="https://x.com/SaleCheckApp" target="_blank" rel="noopener" aria-label="SaleCheck on X">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a href="https://instagram.com/salecheckapp" target="_blank" rel="noopener" class="hover:text-gray-300 transition" aria-label="Follow us on Instagram">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          <a href="https://instagram.com/salecheckapp" target="_blank" rel="noopener" aria-label="SaleCheck on Instagram">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
           </a>
-        </div>
+        </span>
       </div>
     </div>
   </footer>
+
+  <script>
+    /* Pig SVG builder, lifted from gallery 3.html */
+    function pigSVG({ plane = 1, size = 62 } = {}) {
+      const bodyFill = plane === 4 ? '#A0AEC0' : '#82D47C';
+      const bodyPath = plane === 3
+        ? 'M 75 55 A 65 55 0 0 1 170 100 A 30 40 0 0 1 160 140 Q 144 152 128 145 Q 100 155 74 145 L 68 165 L 42 165 L 42 130 Q 35 125 25 115 L 10 115 L 10 85 L 30 85 Q 35 60 55 55 L 45 30 L 75 55 Z'
+        : 'M 75 55 A 65 55 0 0 1 170 100 A 30 40 0 0 1 160 140 L 160 165 L 134 165 L 128 145 Q 100 155 74 145 L 68 165 L 42 165 L 42 130 Q 35 125 25 115 L 10 115 L 10 85 L 30 85 Q 35 60 55 55 L 45 30 L 75 55 Z';
+
+      let accessories = '';
+      let eye = `<circle cx="48" cy="85" r="7" fill="#313D4C"/>`;
+
+      if (plane === 4) {
+        accessories += `
+          <defs>
+            <radialGradient id="cg-${size}-${plane}" cx="50%" cy="50%" r="50%">
+              <stop offset="30%" stop-color="rgba(204,0,0,0.95)"/>
+              <stop offset="100%" stop-color="rgba(204,0,0,0)"/>
+            </radialGradient>
+          </defs>
+          <g fill="none" stroke="rgba(255,255,255,0.7)" stroke-linecap="round">
+            <path d="M 90 68 Q 135 68 158 95" stroke-width="6"/>
+            <path d="M 160 115 Q 155 130 145 140" stroke-width="4"/>
+          </g>
+          <g fill="none" stroke="#313D4C" stroke-width="3" stroke-linecap="round">
+            <path d="M 75 55 Q 65 100 42 130"/>
+            <path d="M 142 63 Q 140 110 128 145"/>
+          </g>`;
+        eye = `
+          <circle cx="48" cy="85" r="10.5" fill="url(#cg-${size}-${plane})"/>
+          <circle cx="48" cy="85" r="8" fill="#1F2937"/>
+          <circle cx="48" cy="85" r="5" fill="#EF4444"/>
+          <circle cx="49" cy="84" r="1" fill="#FCA5A5"/>`;
+      }
+
+      if (plane === 3) {
+        accessories += `
+          <path d="M 38 82 Q 28 85.5 20 84" fill="none" stroke="#313D4C" stroke-width="3" stroke-linecap="round"/>
+          <path d="M 58 74 Q 72 58 84 55" fill="none" stroke="#313D4C" stroke-width="4" stroke-linecap="round"/>
+          <path d="M 38 81 L 58 74 C 60 92, 40 94, 38 81 Z" fill="#313D4C" stroke="#313D4C" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M 160 140 L 160 167 L 134 167 L 128 145 Q 144 152 160 140 Z" fill="#B47A4D" stroke="#313D4C" stroke-width="6" stroke-linejoin="round"/>
+          <path d="M 124 146 Q 144 153 165 139 L 165 148 Q 144 162 126 155 Z" fill="#4B5563" stroke="#313D4C" stroke-width="3" stroke-linejoin="round"/>`;
+        eye = '';
+      }
+
+      const partyHat = plane === 2 ? `
+        <defs><clipPath id="hc-${size}-${plane}"><path d="M 32 74 L 52 56 L 10 15 Z"/></clipPath></defs>
+        <g>
+          <g fill="none" stroke="#313D4C" stroke-width="9" stroke-linecap="round">
+            <path d="M 10 15 Q -5 5 -10 20 T -25 15"/>
+            <path d="M 10 15 Q 15 -5 5 -15 T 15 -25"/>
+            <path d="M 10 15 Q 0 30 -15 25 T -20 40"/>
+          </g>
+          <g fill="none" stroke-width="5" stroke-linecap="round">
+            <path d="M 10 15 Q -5 5 -10 20 T -25 15" stroke="#06D6A0"/>
+            <path d="M 10 15 Q 15 -5 5 -15 T 15 -25" stroke="#FFD166"/>
+            <path d="M 10 15 Q 0 30 -15 25 T -20 40" stroke="#EF476F"/>
+          </g>
+          <path d="M 32 74 L 52 56 L 10 15 Z" fill="#FFFFFF"/>
+          <g clip-path="url(#hc-${size}-${plane})">
+            <path d="M 5 20 L 55 30" fill="none" stroke="#EF476F" stroke-width="5"/>
+            <path d="M 8 32 L 55 42" fill="none" stroke="#FFD166" stroke-width="5"/>
+            <path d="M 12 44 L 55 54" fill="none" stroke="#06D6A0" stroke-width="5"/>
+            <path d="M 16 56 L 55 66" fill="none" stroke="#118AB2" stroke-width="5"/>
+            <path d="M 22 68 L 52 78" fill="none" stroke="#EF476F" stroke-width="5"/>
+          </g>
+          <path d="M 32 74 L 52 56 L 10 15 Z" fill="none" stroke="#313D4C" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+        </g>` : '';
+
+      const crown = plane === 5 ? `
+        <g transform="translate(-4, -32) scale(0.6) rotate(-26, 100, 160)">
+          <path d="M 50 155 C 50 85, 150 85, 150 155 Z" fill="#ef4444" stroke="#374151" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M 45 160 L 40 115 L 75 135 L 100 95 L 125 135 L 160 115 L 155 160 Q 100 185 45 160 Z" fill="#fbbf24" stroke="#374151" stroke-width="8" stroke-linejoin="round"/>
+          <path d="M 45 160 Q 100 185 155 160" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/>
+          <polygon points="100,134 107,143 100,152 93,143" fill="#a855f7" stroke="#374151" stroke-width="4.5"/>
+          <circle cx="58" cy="143" r="3.5" fill="#3b82f6" stroke="#374151" stroke-width="4.5"/>
+          <circle cx="142" cy="143" r="3.5" fill="#10b981" stroke="#374151" stroke-width="4.5"/>
+          <circle cx="40" cy="115" r="5.5" fill="#fbbf24" stroke="#374151" stroke-width="6"/>
+          <circle cx="100" cy="95" r="7" fill="#fbbf24" stroke="#374151" stroke-width="6"/>
+          <circle cx="160" cy="115" r="5.5" fill="#fbbf24" stroke="#374151" stroke-width="6"/>
+        </g>` : '';
+
+      return `<svg viewBox="-25 25 210 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;overflow:visible;">
+        <ellipse cx="100" cy="175" rx="80" ry="8" fill="#000" opacity="0.15"/>
+        <path d="M 168 106 C 185 106, 192 98, 188 90 C 184 82, 174 88, 178 98 C 180 102, 188 102, 195 95" fill="none" stroke="#313D4C" stroke-width="7" stroke-linecap="round"/>
+        ${plane === 4 ? `<path d="M 168 106 C 185 106, 192 98, 188 90 C 184 82, 174 88, 178 98 C 180 102, 188 102, 195 95" fill="none" stroke="#A0AEC0" stroke-width="3" stroke-linecap="round"/>` : ''}
+        <path d="${bodyPath}" fill="${bodyFill}" stroke="#313D4C" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+        ${accessories}
+        <path d="M 87 65 Q 108 59 130 65" fill="none" stroke="#313D4C" stroke-width="10" stroke-linecap="round"/>
+        ${eye}
+        ${partyHat}
+        ${crown}
+      </svg>`;
+    }
+
+    /* Mount hero + section pigs */
+    document.getElementById('hero-pig').innerHTML   = pigSVG({ plane: 2 });
+    document.getElementById('deal-pig').innerHTML   = pigSVG({ plane: 4 });
+    document.getElementById('savings-pig').innerHTML = pigSVG({ plane: 1 });
+
+    /* Meadow pigs (scaled-down version of card 5) */
+    const tierPigs = [
+      { plane: 1, size: 38, x: 20,  y: 60 },
+      { plane: 1, size: 41, x: 95,  y: 72 },
+      { plane: 1, size: 39, x: 175, y: 58 },
+      { plane: 1, size: 43, x: 250, y: 74 },
+      { plane: 1, size: 40, x: 325, y: 60 },
+      { plane: 1, size: 42, x: 395, y: 72 },
+      { plane: 2, size: 50, x: 20,  y: 112 },
+      { plane: 2, size: 55, x: 115, y: 130 },
+      { plane: 2, size: 52, x: 210, y: 114 },
+      { plane: 2, size: 57, x: 300, y: 130 },
+      { plane: 2, size: 54, x: 390, y: 116 },
+      { plane: 3, size: 62, x: 30,  y: 180 },
+      { plane: 3, size: 66, x: 145, y: 184 },
+      { plane: 3, size: 64, x: 260, y: 182 },
+      { plane: 3, size: 68, x: 370, y: 183 },
+      { plane: 4, size: 80, x: 20,  y: 234 },
+      { plane: 4, size: 85, x: 185, y: 238 },
+      { plane: 4, size: 82, x: 340, y: 236 },
+      { plane: 5, size: 140, x: 15,  y: 280 },
+      { plane: 5, size: 150, x: 290, y: 275 },
+      { plane: 1, size: 128, w: 128, h: 102, x: 161, y: 324 },
+    ];
+    const pwRoot = document.getElementById('meadow-pigs');
+    if (pwRoot) tierPigs.forEach(tp => {
+      const el = document.createElement('div');
+      const w = tp.w ?? tp.size;
+      const h = tp.h ?? tp.size;
+      el.style.cssText = `position:absolute; left:${tp.x}px; top:${tp.y}px; width:${w}px; height:${h}px;`;
+      el.innerHTML = pigSVG({ plane: tp.plane, size: tp.size });
+      pwRoot.appendChild(el);
+    });
+  </script>
 
 </body>
 </html>
